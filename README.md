@@ -191,3 +191,5 @@ $ bun db:dev:reset
 
   - Api Document http://localhost:8000/api-docs#
 
+- Adding new songs or updating existing songs including totalPlays for each songs and play count in each month are not included at the time round.
+

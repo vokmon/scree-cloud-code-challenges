@@ -25,6 +25,20 @@ describe('SongsController - Search Songs', () => {
         album: {
           title: 'Album A',
         },
+        writers: [
+          {
+            writer: {
+              name: 'Taylor Swift',
+            },
+          },
+        ],
+        artists: [
+          {
+            artist: {
+              name: 'Taylor Swift',
+            },
+          },
+        ],
       },
     ],
     pagination: {
@@ -91,7 +105,10 @@ describe('SongsController - Search Songs', () => {
             message: 'Year must be a 4-digit number or omitted',
           },
           { field: 'page', message: 'Page must be greater than 0' },
-          { field: 'limit', message: 'Limit must be less than or equal to 50' },
+          {
+            field: 'limit',
+            message: 'Limit must be less than or equal to 100',
+          },
         ],
       },
     });

@@ -222,3 +222,58 @@ describe('/songs/recommendations (GET)', () => {
     }
   });
 });
+
+describe('/top-songs-by-months (GET)', () => {
+  const url = inject('url'); // Base URL for the app
+
+  it('should return top songs for the current month with default criteria', async () => {
+    const response = await request(url)
+      .get('/songs/top-songs-by-months')
+      .expect(HttpStatus.OK);
+
+    expect(response.body).toBeInstanceOf(Array);
+    expect(response.body.length).toBeGreaterThan(0);
+    response.body.forEach((item) => {
+      expect(item).toHaveProperty('month');
+      expect(item).toHaveProperty('year');
+      expect(item).toHaveProperty('topSongs');
+    });
+  });
+
+  it('should return top songs for specific months and years with valid query params', async () => {
+    const response = await request(url)
+      .get('/songs/top-songs-by-months')
+      .query({ monthYears: '2024-01,2024-02', limit: 5 })
+      .expect(HttpStatus.OK);
+
+    expect(response.body).toBeInstanceOf(Array);
+    expect(response.body.length).toBeGreaterThan(0);
+    response.body.forEach((item) => {
+      expect(item).toHaveProperty('month');
+      expect(item).toHaveProperty('year');
+      expect(item).toHaveProperty('topSongs');
+      expect(item.topSongs.length).toBeLessThanOrEqual(5); // Limit of 5
+    });
+  });
+
+  it('should return 400 for invalid query params', async () => {
+    const response = await request(url)
+      .get('/songs/top-songs-by-months')
+      .query({ monthYears: 'invalid-date-format', limit: -5 })
+      .expect(HttpStatus.BAD_REQUEST);
+
+    expect(response.body).toMatchObject({
+      message: 'Validation failed',
+      errors: [
+        expect.objectContaining({
+          field: 'monthYears',
+          message: expect.stringContaining('Invalid date format'),
+        }),
+        expect.objectContaining({
+          field: 'limit',
+          message: expect.stringContaining('must be greater than'),
+        }),
+      ],
+    });
+  });
+});

@@ -12,35 +12,6 @@ describe('SongsController - Get Recommended songs', () => {
   let service: SongsService;
   const pipe = new ZodValidationPipe(GetRecommendationCriteriaSchema);
 
-  const mockSongs: Song[] = [
-    {
-      index: 1,
-      title: 'Forever & Always (piano version)',
-      year: 2009,
-      totalPlays: 75551,
-      album: {
-        title: 'Fearless\n(Platinum edition)',
-      },
-    },
-    {
-      index: 2,
-      title: 'Picture to Burn',
-      year: 2006,
-      totalPlays: 6680,
-      album: {
-        title: 'Taylor Swift',
-      },
-    },
-    {
-      index: 3,
-      title: 'Tied Together with a Smile',
-      year: 2006,
-      totalPlays: 15608,
-      album: {
-        title: 'Taylor Swift',
-      },
-    },
-  ];
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SongsController],
@@ -100,9 +71,84 @@ describe('SongsController - Get Recommended songs', () => {
             field: 'orderDirection',
             message: 'Invalid orderDirection value. Use "asc" or "desc"',
           },
-          { field: 'limit', message: 'Limit must be less than or equal to 50' },
+          {
+            field: 'limit',
+            message: 'Limit must be less than or equal to 100',
+          },
         ],
       },
     });
   });
 });
+
+const mockSongs: Song[] = [
+  {
+    index: 1,
+    title: 'Forever & Always (piano version)',
+    year: 2009,
+    totalPlays: 75551,
+    album: {
+      title: 'Fearless\n(Platinum edition)',
+    },
+    writers: [
+      {
+        writer: {
+          name: 'Taylor Swift',
+        },
+      },
+    ],
+    artists: [
+      {
+        artist: {
+          name: 'Taylor Swift',
+        },
+      },
+    ],
+  },
+  {
+    index: 2,
+    title: 'Picture to Burn',
+    year: 2006,
+    totalPlays: 6680,
+    album: {
+      title: 'Taylor Swift',
+    },
+    writers: [
+      {
+        writer: {
+          name: 'Taylor Swift',
+        },
+      },
+    ],
+    artists: [
+      {
+        artist: {
+          name: 'Taylor Swift',
+        },
+      },
+    ],
+  },
+  {
+    index: 3,
+    title: 'Tied Together with a Smile',
+    year: 2006,
+    totalPlays: 15608,
+    album: {
+      title: 'Taylor Swift',
+    },
+    writers: [
+      {
+        writer: {
+          name: 'Taylor Swift',
+        },
+      },
+    ],
+    artists: [
+      {
+        artist: {
+          name: 'Taylor Swift',
+        },
+      },
+    ],
+  },
+];

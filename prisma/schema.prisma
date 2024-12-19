@@ -79,7 +79,7 @@ model SongArtist {
   personId Int
 
   song   Song   @relation(fields: [songId], references: [id])
-  writer Person @relation(fields: [personId], references: [id])
+  artist Person @relation(fields: [personId], references: [id])
 
   @@id([songId, personId]) // Composite key
 }

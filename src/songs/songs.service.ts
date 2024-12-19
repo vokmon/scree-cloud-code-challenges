@@ -14,6 +14,7 @@ import * as dto from './dto/songs.dto';
 import { GetSongByIdCriteriaDto } from './dto/get-songs-by-id.dto';
 import { GetRecommendationCriteriaDto } from './dto/get-recommendations.dto';
 import { getRandomNumbers } from '@src/utils/number-utils';
+import { GetTopSongsCriteriaDto, TopSongs } from './dto/get-top-songs.dto';
 
 @Injectable()
 export class SongsService {
@@ -65,6 +66,28 @@ export class SongsService {
                   is: { title: { contains: keyword, mode: 'insensitive' } }, // Search in album title
                 },
               },
+              {
+                writers: {
+                  some: {
+                    writer: {
+                      is: {
+                        name: { contains: keyword, mode: 'insensitive' },
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                artists: {
+                  some: {
+                    artist: {
+                      is: {
+                        name: { contains: keyword, mode: 'insensitive' },
+                      },
+                    },
+                  },
+                },
+              },
             ],
           }
         : {}),
@@ -110,10 +133,8 @@ export class SongsService {
     if (!song) {
       return null;
     }
-    return {
-      index: 1,
-      ...song,
-    };
+    const dto = this.transformSongDbToDto([song], 0);
+    return dto[0];
   }
 
   /**
@@ -151,6 +172,68 @@ export class SongsService {
     return songsDto;
   }
 
+  async getTopSongsByMonths(
+    criteria: GetTopSongsCriteriaDto,
+  ): Promise<TopSongs[]> {
+    const { monthYears, limit } = criteria;
+    const results = [];
+
+    for (const { month, year } of monthYears) {
+      const topSongs = await this.datasourceService.play.findMany({
+        select: {
+          playCount: true,
+          song: {
+            select: {
+              id: true,
+              title: true,
+              totalPlays: true,
+              year: true,
+              album: {
+                select: {
+                  title: true,
+                },
+              },
+              writers: {
+                select: {
+                  writer: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+              artists: {
+                select: {
+                  artist: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        where: {
+          month,
+          year,
+        },
+        orderBy: {
+          playCount: 'desc',
+        },
+        take: limit,
+      });
+
+      results.push({
+        month,
+        year,
+        topSongs,
+      });
+    }
+
+    return results;
+  }
+
   private transformSongDbToDto(songs: Song[], offset: number): dto.Song[] {
     const songsDto = songs.map((song, index) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -169,6 +252,24 @@ export class SongsService {
       year: true,
       totalPlays: true,
       album: { select: { title: true } },
+      writers: {
+        select: {
+          writer: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+      artists: {
+        select: {
+          artist: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
       ...this.getPlaysSelection(includePlayData),
     };
   }

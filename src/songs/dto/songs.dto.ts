@@ -20,12 +20,27 @@ export const SongSortingSchema = getSortingSchema([
 ]);
 
 export type Song = {
-  index: number;
+  index?: number;
+  id?: number;
   title: string;
   album: SongAlbum;
   year: number;
   totalPlays: number;
+  writers: Writer[];
+  artists: Artist[];
   plays?: PlayData[];
+};
+
+export type Writer = {
+  writer: Person;
+};
+
+export type Artist = {
+  artist: Person;
+};
+
+export type Person = {
+  name: string;
 };
 
 export type SongAlbum = {

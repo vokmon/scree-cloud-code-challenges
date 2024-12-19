@@ -29,6 +29,20 @@ describe('SongsController - Get Song by Id', () => {
         playCount: 206,
       },
     ],
+    writers: [
+      {
+        writer: {
+          name: 'Taylor Swift',
+        },
+      },
+    ],
+    artists: [
+      {
+        artist: {
+          name: 'Taylor Swift',
+        },
+      },
+    ],
   };
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

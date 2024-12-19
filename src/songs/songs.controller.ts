@@ -22,6 +22,11 @@ import {
   GetRecommendationCriteriaDto,
   GetRecommendationCriteriaSchema,
 } from './dto/get-recommendations.dto';
+import {
+  GetTopSongsCriteriaDto,
+  GetTopSongsCriteriaSchema,
+  TopSongs,
+} from './dto/get-top-songs.dto';
 
 @Controller('songs')
 export class SongsController {
@@ -45,7 +50,8 @@ export class SongsController {
   @ApiQuery({
     name: 'keyword',
     required: false,
-    description: 'Search keyword for song or album title (case insensitive).',
+    description:
+      'Search keyword for song or album title or writers or artists names (case insensitive).',
     example: 'love',
   })
   @ApiQuery({
@@ -129,6 +135,39 @@ export class SongsController {
     );
     const songs = await this.songsService.getRecommendationSongs(query);
     return songs;
+  }
+
+  @Get('/top-songs-by-months')
+  @ApiOperation({
+    summary: 'Get top songs by month and year',
+    description:
+      'Fetches the top songs based on play counts for each specified month-year pair.',
+  })
+  @ApiQuery({
+    name: 'monthYears',
+    required: false,
+    type: String,
+    description:
+      'Comma-separated list of month-year pairs in the format "YYYY-MM". Defaults to the current month if not provided.',
+    example: '2024-01,2024-02',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description:
+      'The maximum number of top songs to return for each month-year pair. Defaults to 10 if not provided.',
+    example: 10,
+  })
+  async getTopSongsByMonths(
+    @Query(new ZodValidationPipe(GetTopSongsCriteriaSchema))
+    query: GetTopSongsCriteriaDto,
+  ): Promise<TopSongs[]> {
+    this.logger.log(
+      `Get top songs by month with creteria: ${JSON.stringify(query)}`,
+    );
+    const result = await this.songsService.getTopSongsByMonths(query);
+    return result;
   }
 
   @Get(':id')

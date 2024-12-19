@@ -10,6 +10,7 @@ import {
   SearchSongResult,
 } from '@src/songs/dto/search-songs.dto';
 import { DatasourceService } from '@src/datasource/datasource.service';
+import { Prisma } from '@prisma/client';
 
 describe('SongsService - searchSongs', () => {
   let service: SongsService;
@@ -43,6 +44,63 @@ describe('SongsService - searchSongs', () => {
     },
   ];
 
+  const selectFields: Prisma.SongSelect = {
+    title: true,
+    year: true,
+    totalPlays: true,
+    album: { select: { title: true } },
+    writers: {
+      select: {
+        writer: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    },
+    artists: {
+      select: {
+        artist: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    },
+  };
+
+  const whereConditions: Prisma.SongWhereInput = {
+    year: 2023,
+    OR: [
+      { title: { contains: 'love', mode: 'insensitive' } },
+      {
+        album: { is: { title: { contains: 'love', mode: 'insensitive' } } },
+      },
+      {
+        writers: {
+          some: {
+            writer: {
+              is: {
+                name: { contains: 'love', mode: 'insensitive' },
+              },
+            },
+          },
+        },
+      },
+      {
+        artists: {
+          some: {
+            artist: {
+              is: {
+                name: { contains: 'love', mode: 'insensitive' },
+              },
+            },
+          },
+        },
+      },
+    ],
+  };
+
   beforeEach(() => {
     datasourceServiceMock = mockDeep<DatasourceService>();
     service = new SongsService(datasourceServiceMock);
@@ -72,22 +130,9 @@ describe('SongsService - searchSongs', () => {
     expectResult({ result, page, limit });
 
     // Asserts that the query is constructed correctly
-    expect(datasourceServiceMock.song.findMany).toHaveBeenCalledWith({
-      select: {
-        title: true,
-        year: true,
-        totalPlays: true,
-        album: { select: { title: true } },
-      },
-      where: {
-        year: 2023,
-        OR: [
-          { title: { contains: 'love', mode: 'insensitive' } },
-          {
-            album: { is: { title: { contains: 'love', mode: 'insensitive' } } },
-          },
-        ],
-      },
+    expect(datasourceServiceMock.song.findMany).toHaveBeenLastCalledWith({
+      select: selectFields,
+      where: whereConditions,
       orderBy: [{ title: 'asc' }],
       skip: 0,
       take: 2,
@@ -95,15 +140,7 @@ describe('SongsService - searchSongs', () => {
 
     // Asserts that the count query is constructed correctly
     expect(datasourceServiceMock.song.count).toHaveBeenCalledWith({
-      where: {
-        year: 2023,
-        OR: [
-          { title: { contains: 'love', mode: 'insensitive' } },
-          {
-            album: { is: { title: { contains: 'love', mode: 'insensitive' } } },
-          },
-        ],
-      },
+      where: whereConditions,
     });
   });
 
@@ -181,12 +218,7 @@ describe('SongsService - searchSongs', () => {
 
     // Validate the query statement
     expect(datasourceServiceMock.song.findMany).toHaveBeenCalledWith({
-      select: {
-        title: true,
-        year: true,
-        totalPlays: true,
-        album: { select: { title: true } },
-      },
+      select: selectFields,
       where: {}, // Empty where clause
       orderBy: [], // No order applied
       skip: 0,
