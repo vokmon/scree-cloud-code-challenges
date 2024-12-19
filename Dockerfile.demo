@@ -1,0 +1,11 @@
+# Dockerfile
+
+FROM oven/bun:latest
+
+
+RUN mkdir -p /opt/app
+WORKDIR /opt/app
+COPY package.json bun.lockb ./
+RUN bun install
+COPY . .
+CMD ["bun", "run", "start:prod"]

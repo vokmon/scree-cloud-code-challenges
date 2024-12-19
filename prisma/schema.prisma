@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Person model: Represents individuals like artists or producers
+model Person {
+  id         Int          @id @default(autoincrement())
+  name       String
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  SongWriter SongWriter[]
+  SongArtist SongArtist[]
+}
+
+// Album model: Represents an album
+model Album {
+  id        Int      @id @default(autoincrement())
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Song      Song[]
+}
+
+// Song model: Represents a song
+model Song {
+  id         Int          @id @default(autoincrement())
+  title      String
+  albumId    Int? // Foreign key to Album
+  year       Int // Year when the song was released
+  totalPlays Int          @default(0)
+  plays      Play[] // Relation to the Play data (monthly plays)
+  writers    SongWriter[] // Relation to Writers
+  artists    SongArtist[] // Relation to Artists
+  album      Album?       @relation(fields: [albumId], references: [id])
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+// Play model: Tracks the number of plays per month for each song
+model Play {
+  id        Int @id @default(autoincrement())
+  songId    Int // Foreign key to Song
+  month     Int // Month name (e.g., 'June', 'July')
+  year      Int // Year of the play record
+  playCount Int // Number of plays
+
+  song Song @relation(fields: [songId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// SongWriter (table for Many-to-Many between Song and Writer)
+model SongWriter {
+  songId   Int
+  personId Int
+
+  song   Song   @relation(fields: [songId], references: [id])
+  writer Person @relation(fields: [personId], references: [id])
+
+  @@id([songId, personId]) // Composite key
+}
+
+// SongArtist (table for Many-to-Many between Song and Artist)
+model SongArtist {
+  songId   Int
+  personId Int
+
+  song   Song   @relation(fields: [songId], references: [id])
+  writer Person @relation(fields: [personId], references: [id])
+
+  @@id([songId, personId]) // Composite key
+}

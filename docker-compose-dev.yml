@@ -1,0 +1,34 @@
+version: 'latest'
+services:
+  swift-cloud-dev-db:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_DB: swift_cloud_dev_db
+    networks:
+     - app-network
+  swift-cloud-test-db:
+    image: postgres:latest
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: e2e_swift_cloud
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_DB: swift_cloud_e2e
+    networks:
+     - app-network
+  swift-cloud-demo-db:
+    image: postgres:latest
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_DB: swift_cloud_demo_db
+    networks:
+     - app-network
+networks:
+  app-network:
