@@ -11,20 +11,18 @@ import {
 } from '@src/songs/dto/search-songs.dto';
 import { DatasourceService } from '@src/datasource/datasource.service';
 
-describe('SongsService', () => {
+describe('SongsService - searchSongs', () => {
   let service: SongsService;
   let datasourceServiceMock;
 
   const songsMock = [
     {
-      id: 1,
       title: 'Love Song',
       year: 2023,
       totalPlays: 100,
       album: { title: 'Love Album' },
     },
     {
-      id: 2,
       title: 'Another Love',
       year: 2023,
       totalPlays: 50,
@@ -34,7 +32,6 @@ describe('SongsService', () => {
 
   const songsWithPlayDataMock = [
     {
-      id: 1,
       title: 'Top Song',
       year: 2022,
       totalPlays: 200,
@@ -77,7 +74,6 @@ describe('SongsService', () => {
     // Asserts that the query is constructed correctly
     expect(datasourceServiceMock.song.findMany).toHaveBeenCalledWith({
       select: {
-        id: true,
         title: true,
         year: true,
         totalPlays: true,
@@ -186,7 +182,6 @@ describe('SongsService', () => {
     // Validate the query statement
     expect(datasourceServiceMock.song.findMany).toHaveBeenCalledWith({
       select: {
-        id: true,
         title: true,
         year: true,
         totalPlays: true,

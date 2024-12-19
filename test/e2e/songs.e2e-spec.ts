@@ -58,8 +58,13 @@ describe('/songs (GET)', () => {
       .query({ page: -1, limit: 0 }) // Invalid pagination
       .expect(HttpStatus.BAD_REQUEST);
 
-    expect(response.body.message).toContain('Page must be greater than 0');
-    expect(response.body.message).toContain('Limit must be greater than 0');
+    expect(response.body).toMatchObject({
+      message: 'Validation failed',
+      errors: [
+        { field: 'page', message: 'Page must be greater than 0' },
+        { field: 'limit', message: 'Limit must be greater than 0' },
+      ],
+    });
   });
 
   it('should handle no songs found case', async () => {
@@ -69,5 +74,151 @@ describe('/songs (GET)', () => {
       .expect(HttpStatus.OK);
 
     expect(response.body.data).toEqual([]);
+  });
+});
+
+describe('/songs/:id (GET)', () => {
+  const url = inject('url');
+
+  it('should return a song when found', async () => {
+    const songId = 1;
+    const query = { includePlayData: 'true' }; // Example query parameter
+
+    // Mock response for the service
+    const response = await request(url)
+      .get(`/songs/${songId}`)
+      .query(query)
+      .expect(HttpStatus.OK);
+
+    // Check that the response contains the expected song data and index
+    expect(response.body).toHaveProperty('index');
+    expect(response.body.index).toBe(1); // Ensure index is 1
+    expect(response.body).toHaveProperty('id');
+    expect(response.body.id).toBe(songId);
+  });
+
+  it('should return an empty object if no song is found', async () => {
+    const songId = 9999; // Invalid song ID
+    const query = { includePlayData: 'true' };
+
+    // Mock the service to return null
+    const response = await request(url)
+      .get(`/songs/${songId}`)
+      .query(query)
+      .expect(HttpStatus.OK);
+
+    expect(response.body).toEqual({});
+  });
+
+  it('should return 400 for invalid query params', async () => {
+    const songId = 1;
+    const invalidQuery = { includePlayData: 'invalid' }; // Invalid query value
+
+    const response = await request(url)
+      .get(`/songs/${songId}`)
+      .query(invalidQuery)
+      .expect(HttpStatus.BAD_REQUEST);
+
+    expect(response.body).toMatchObject({
+      message: 'Validation failed',
+      errors: [
+        {
+          field: 'includePlayData',
+          message: 'includePlayData must be "true" or "false"',
+        },
+      ],
+    });
+  });
+
+  it('should handle invalid song id', async () => {
+    const invalidSongId = 'abc'; // Invalid ID type (string instead of number)
+
+    const response = await request(url)
+      .get(`/songs/${invalidSongId}`)
+      .expect(HttpStatus.BAD_REQUEST);
+
+    expect(response.body).toMatchObject({
+      message: 'Validation failed (numeric string is expected)',
+    });
+  });
+});
+
+describe('/songs/recommendations (GET)', () => {
+  const url = inject('url'); // Base URL for the app
+
+  it('should return recommended songs with default criteria', async () => {
+    const response = await request(url)
+      .get('/songs/recommendations')
+      .expect(HttpStatus.OK);
+
+    expect(response.body).toBeInstanceOf(Array);
+    expect(response.body.length).toBeGreaterThan(0);
+    response.body.forEach((song) => {
+      expect(song).toHaveProperty('index');
+      expect(song).toHaveProperty('title');
+      expect(song).toHaveProperty('year');
+      expect(song).toHaveProperty('album');
+      expect(song).toHaveProperty('totalPlays');
+    });
+  });
+
+  it('should return recommended songs with valid query params', async () => {
+    const response = await request(url)
+      .get('/songs/recommendations')
+      .query({ limit: 5, orderBy: 'songName', includePlayData: 'true' })
+      .expect(HttpStatus.OK);
+
+    expect(response.body).toBeInstanceOf(Array);
+    expect(response.body.length).toBeGreaterThan(0);
+    response.body.forEach((song) => {
+      expect(song).toHaveProperty('index');
+      expect(song).toHaveProperty('title');
+      expect(song).toHaveProperty('year');
+      expect(song).toHaveProperty('album');
+      expect(song).toHaveProperty('totalPlays');
+      expect(song).toHaveProperty('plays');
+    });
+  });
+
+  it('should return 400 for invalid query params', async () => {
+    const response = await request(url)
+      .get('/songs/recommendations')
+      .query({ limit: -5 }) // Invalid limit
+      .expect(HttpStatus.BAD_REQUEST);
+
+    expect(response.body).toMatchObject({
+      message: 'Validation failed',
+      errors: [
+        expect.objectContaining({
+          field: 'limit',
+          message: expect.stringContaining('must be greater than'),
+        }),
+      ],
+    });
+  });
+
+  it('should respect the "includePlayData" flag', async () => {
+    const response = await request(url)
+      .get('/songs/recommendations')
+      .query({ includePlayData: 'false' })
+      .expect(HttpStatus.OK);
+
+    response.body.forEach((song) => {
+      expect(song).not.toHaveProperty('playData'); // Ensure playData is excluded
+    });
+  });
+
+  it('should respect sorting by a valid orderBy field', async () => {
+    const response = await request(url)
+      .get('/songs/recommendations')
+      .query({ orderBy: 'totalPlays', orderDirection: 'desc' })
+      .expect(HttpStatus.OK);
+
+    const songs = response.body;
+    for (let i = 1; i < songs.length; i++) {
+      expect(songs[i - 1].totalPlays).toBeGreaterThanOrEqual(
+        songs[i].totalPlays,
+      );
+    }
   });
 });

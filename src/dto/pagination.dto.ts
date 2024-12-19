@@ -1,3 +1,4 @@
+import { MAX_LIMIT, MIN_LIMIT } from '@src/constants/PaginationConstants';
 import { z } from 'zod';
 
 // Reusable pagination schema
@@ -14,9 +15,11 @@ export const PaginationSchema = z.object({
     .optional()
     .default('10')
     .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0, { message: 'Limit must be greater than 0' })
-    .refine((val) => val <= 50, {
-      message: 'Limit must be less than or equal to 50',
+    .refine((val) => val >= MIN_LIMIT, {
+      message: `Limit must be greater than ${MIN_LIMIT - 1}`,
+    })
+    .refine((val) => val <= MAX_LIMIT, {
+      message: `Limit must be less than or equal to ${MAX_LIMIT}`,
     }),
 });
 

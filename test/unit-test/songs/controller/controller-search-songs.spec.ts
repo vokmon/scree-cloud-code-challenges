@@ -1,16 +1,19 @@
 import { vi } from 'vitest';
-import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SongsController } from '@src/songs/songs.controller';
 import { SongsService } from '@src/songs/songs.service';
 import {
   SearchSongCriteriaDto,
+  SearchSongCriteriaSchema,
   SearchSongResult,
 } from '@src/songs/dto/search-songs.dto';
+import { ZodValidationPipe } from '@src/pipes/zod-validation-pipe';
+import { MAX_LIMIT } from '@src/constants/PaginationConstants';
 
-describe('SongsController', () => {
+describe('SongsController - Search Songs', () => {
   let controller: SongsController;
   let service: SongsService;
+  const pipe = new ZodValidationPipe(SearchSongCriteriaSchema);
 
   const mockResult: SearchSongResult = {
     data: [
@@ -21,7 +24,6 @@ describe('SongsController', () => {
         totalPlays: 100,
         album: {
           title: 'Album A',
-          id: 0,
         },
       },
     ],
@@ -75,16 +77,24 @@ describe('SongsController', () => {
     const invalidQuery = {
       year: 'invalid-year', // Not a valid year format
       page: '0', // Invalid page number
-      limit: '100', // Exceeds the limit
+      limit: String(MAX_LIMIT + 1), // Exceeds the limit
     };
 
-    await expect(controller.searchSongs(invalidQuery as any)).rejects.toThrow(
-      new BadRequestException([
-        'Year must be a 4-digit number or omitted',
-        'Page must be greater than 0',
-        'Limit must be less than or equal to 50',
-      ]),
-    );
+    await expect(
+      pipe.transform(invalidQuery, { type: 'param' }),
+    ).rejects.toMatchObject({
+      response: {
+        message: 'Validation failed',
+        errors: [
+          {
+            field: 'year',
+            message: 'Year must be a 4-digit number or omitted',
+          },
+          { field: 'page', message: 'Page must be greater than 0' },
+          { field: 'limit', message: 'Limit must be less than or equal to 50' },
+        ],
+      },
+    });
   });
 
   it('should handle default values for optional parameters', async () => {
@@ -93,20 +103,19 @@ describe('SongsController', () => {
       limit: '10',
     };
 
+    const query = await pipe.transform(mockQuery, { type: 'param' });
     vi.spyOn(service, 'searchSongs').mockResolvedValue(mockResult);
 
-    const result = await controller.searchSongs(
-      mockQuery as unknown as SearchSongCriteriaDto,
-    );
+    const result = await controller.searchSongs(query);
 
     expect(service.searchSongs).toHaveBeenCalledWith({
-      ...mockQuery,
       includePlayData: false,
       orderBy: undefined,
       orderDirection: 'asc',
       limit: 10,
       page: 1,
     });
+
     expect(result).toEqual(mockResult);
   });
 
@@ -119,12 +128,19 @@ describe('SongsController', () => {
     };
 
     await expect(
-      controller.searchSongs(invalidQuery as unknown as SearchSongCriteriaDto),
-    ).rejects.toThrow(
-      new BadRequestException([
-        'Invalid orderBy value. Use songName, albumName, year, totalPlays123',
-      ]),
-    );
+      pipe.transform(invalidQuery, { type: 'param' }),
+    ).rejects.toMatchObject({
+      response: {
+        message: 'Validation failed',
+        errors: [
+          {
+            field: 'orderBy',
+            message:
+              'Invalid orderBy value. Use songName, albumName, year, totalPlays',
+          },
+        ],
+      },
+    });
   });
 
   it('should return data when no search criteria is provided', async () => {
@@ -132,7 +148,8 @@ describe('SongsController', () => {
 
     vi.spyOn(service, 'searchSongs').mockResolvedValue(mockResult);
 
-    const result = await controller.searchSongs(mockQuery);
+    const query = await pipe.transform(mockQuery, { type: 'param' });
+    const result = await controller.searchSongs(query);
 
     expect(service.searchSongs).toHaveBeenCalledWith({
       includePlayData: false,

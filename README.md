@@ -32,7 +32,19 @@ You should see the information below
 | ebe7c9551b9d | swift-backend:latest   | `/usr/local/bin/dock…`    | 13 minutes ago | Up 13 minutes| 0.0.0.0:8001->8001/tcp              | swift-backend         |
 | 4166612fdca1 | postgres:latest        | `docker-entrypoint.s…`    | 13 minutes ago | Up 13 minutes| 5432/tcp, 0.0.0.0:5434->5434/tcp    | swift-cloud-demo-db   |
 
+<br/>
+
+### Option 1.1 Run the service directly with Docker
+This option is to start all the neccssary service such as database and service.
+It also provide sample data in the database.
+
+1. Run the command to start the service
+```bash
+$ bun start:demo 
+```
+
 <br />
+
 ### Option 2 Run the service directly on local machine
 In case Docker is not available, it is still possible to everything on local machine.
 
