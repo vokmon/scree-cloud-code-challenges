@@ -5,12 +5,12 @@ import { SongsService } from '@src/songs/songs.service';
 import { ZodValidationPipe } from '@src/pipes/zod-validation-pipe';
 import { Song } from '@src/dto/song.dto';
 import { MAX_LIMIT } from '@src/constants/PaginationConstants';
-import { GetRecommendationCriteriaSchema } from '@src/songs/dto/get-recommendations.dto';
+import { GetRecommendationSongsCriteriaSchema } from '@src/songs/dto/get-recommendation-songs.dto';
 
 describe('SongsController - Get Recommended songs', () => {
   let controller: SongsController;
   let service: SongsService;
-  const pipe = new ZodValidationPipe(GetRecommendationCriteriaSchema);
+  const pipe = new ZodValidationPipe(GetRecommendationSongsCriteriaSchema);
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

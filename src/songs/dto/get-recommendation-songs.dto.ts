@@ -6,12 +6,12 @@ const LimitSchema = PaginationSchema.pick({
   limit: true,
 });
 
-export const GetRecommendationCriteriaSchema = z.object({
+export const GetRecommendationSongsCriteriaSchema = z.object({
   ...IncludePlayDataSchema.shape,
   ...SongSortingSchema.shape,
   ...LimitSchema.shape,
 });
 
-export type GetRecommendationCriteriaDto = z.infer<
-  typeof GetRecommendationCriteriaSchema
+export type GetRecommendationSongsCriteriaDto = z.infer<
+  typeof GetRecommendationSongsCriteriaSchema
 >;

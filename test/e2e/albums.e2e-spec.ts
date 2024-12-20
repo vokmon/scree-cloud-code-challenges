@@ -136,3 +136,67 @@ describe('/albums/ (GET)', () => {
     });
   });
 });
+
+describe('/albums/recommendations (GET)', () => {
+  const url = inject('url'); // Base URL for the app
+
+  it('should return recommended albums with default criteria', async () => {
+    const response = await request(url)
+      .get('/albums/recommendations')
+      .expect(HttpStatus.OK);
+
+    expect(response.body).toBeInstanceOf(Array);
+    expect(response.body.length).toBeGreaterThan(0);
+  });
+
+  it('should return recommended albums with valid query params', async () => {
+    const limit = 5;
+    const response = await request(url)
+      .get('/albums/recommendations')
+      .query({ limit, orderBy: 'albumName', includeSongData: 'true' })
+      .expect(HttpStatus.OK);
+
+    expect(response.body).toBeInstanceOf(Array);
+    expect(response.body.length).toEqual(limit);
+  });
+
+  it('should return 400 for invalid query params', async () => {
+    const response = await request(url)
+      .get('/albums/recommendations')
+      .query({ limit: -5 }) // Invalid limit
+      .expect(HttpStatus.BAD_REQUEST);
+
+    expect(response.body).toMatchObject({
+      message: 'Validation failed',
+      errors: [
+        expect.objectContaining({
+          field: 'limit',
+          message: expect.stringContaining('must be greater than'),
+        }),
+      ],
+    });
+  });
+
+  it('should respect the "includeSongData" flag: false', async () => {
+    const response = await request(url)
+      .get('/albums/recommendations')
+      .query({ includeSongData: 'false' })
+      .expect(HttpStatus.OK);
+
+    response.body.forEach((album) => {
+      expect(album).not.toHaveProperty('songs');
+    });
+  });
+
+  it('should respect the "includeSongData" flag: true', async () => {
+    const response = await request(url)
+      .get('/albums/recommendations')
+      .query({ includeSongData: 'true' })
+      .expect(HttpStatus.OK);
+
+    console.log(response.body);
+    response.body.forEach((album) => {
+      expect(album).toHaveProperty('songs');
+    });
+  });
+});

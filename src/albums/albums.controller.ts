@@ -19,6 +19,10 @@ import {
   SearchAlbumCriteriaSchema,
   SearchAlbumResult,
 } from './dto/search-albums-by-criteria.dto';
+import {
+  GetRecommendationAlbumsCriteriaDto,
+  GetRecommendationAlbumsCriteriaSchema,
+} from './dto/get-albums-recommendations.dto';
 
 @Controller('albums')
 export class AlbumsController {
@@ -96,6 +100,48 @@ export class AlbumsController {
   ): Promise<SearchAlbumResult> {
     this.logger.log(`Search albums with criteria: ${JSON.stringify(query)}`);
     return this.albumsService.searchAlbums(query);
+  }
+
+  @Get('/recommendations')
+  @ApiOperation({
+    summary: 'Get recommended albums',
+    description:
+      'Retrieve a list of recommended albums based on random selection. This is a simplified example and does not account for real-world recommendation factors such as user preferences, playlists, or trends.',
+  })
+  @ApiQuery({
+    name: 'includeSongData',
+    type: Boolean,
+    required: false,
+    description:
+      'Whether to include song data in the response (true or false). Default is false.',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'The maximum number of recommended albums to retrieve.',
+  })
+  @ApiQuery({
+    name: 'orderBy',
+    required: false,
+    description:
+      'Comma-separated list of fields to sort by (e.g., "albumName"). The available fields is albumName',
+    example: 'albumName',
+  })
+  @ApiQuery({
+    name: 'orderDirection',
+    required: false,
+    description: 'Sort direction: "asc" or "desc". Default is "asc".',
+    example: 'asc',
+  })
+  async getRecommendationAlbums(
+    @Query(new ZodValidationPipe(GetRecommendationAlbumsCriteriaSchema))
+    query: GetRecommendationAlbumsCriteriaDto,
+  ): Promise<Album[]> {
+    this.logger.log(
+      `Get recommended albums with criteria: ${JSON.stringify(query)}`,
+    );
+    return this.albumsService.getRecommendationAlbums(query);
   }
 
   @Get(':id')

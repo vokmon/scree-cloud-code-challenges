@@ -11,7 +11,7 @@ import {
 } from '@src/utils/pagination-utils';
 import * as dto from '@src/dto/song.dto';
 import { GetSongByIdCriteriaDto } from './dto/get-songs-by-id.dto';
-import { GetRecommendationCriteriaDto } from './dto/get-recommendations.dto';
+import { GetRecommendationSongsCriteriaDto } from './dto/get-recommendation-songs.dto';
 import { getRandomNumbers } from '@src/utils/number-utils';
 import { GetTopSongsCriteriaDto, TopSongs } from './dto/get-top-songs.dto';
 import { SongMapperService } from '@src/mappers/song-mapper.dto';
@@ -159,7 +159,7 @@ export class SongsService {
    * @param query {@link GetRecommendationCriteriaDto}
    */
   async getRecommendationSongs(
-    query: GetRecommendationCriteriaDto,
+    query: GetRecommendationSongsCriteriaDto,
   ): Promise<dto.Song[]> {
     const selectFields = this.getSongSelection(query);
     const orderBy = getOrderBy<

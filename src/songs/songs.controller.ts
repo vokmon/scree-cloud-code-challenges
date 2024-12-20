@@ -21,14 +21,15 @@ import {
   GetSongByIdCriteriaSchema,
 } from './dto/get-songs-by-id.dto';
 import {
-  GetRecommendationCriteriaDto,
-  GetRecommendationCriteriaSchema,
-} from './dto/get-recommendations.dto';
+  GetRecommendationSongsCriteriaDto,
+  GetRecommendationSongsCriteriaSchema,
+} from './dto/get-recommendation-songs.dto';
 import {
   GetTopSongsCriteriaDto,
   GetTopSongsCriteriaSchema,
   TopSongs,
 } from './dto/get-top-songs.dto';
+import { Song } from '@src/dto/song.dto';
 
 @Controller('songs')
 export class SongsController {
@@ -97,7 +98,7 @@ export class SongsController {
   }
 
   @Get('/recommendations')
-  @ZodValidate(GetRecommendationCriteriaSchema)
+  @ZodValidate(GetRecommendationSongsCriteriaSchema)
   @ApiOperation({
     summary: 'Get recommended songs',
     description:
@@ -130,10 +131,10 @@ export class SongsController {
   })
   async getRecommendationSongs(
     @Query()
-    query: GetRecommendationCriteriaDto,
-  ) {
+    query: GetRecommendationSongsCriteriaDto,
+  ): Promise<Song[]> {
     this.logger.log(
-      `Get songs recommendation with criteria: ${JSON.stringify(query)}`,
+      `Get recommended songs with criteria: ${JSON.stringify(query)}`,
     );
     const songs = await this.songsService.getRecommendationSongs(query);
     return songs;

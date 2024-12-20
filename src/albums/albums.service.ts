@@ -13,6 +13,8 @@ import {
   getPaginationQueryObject,
 } from '@src/utils/pagination-utils';
 import { getOrderBy } from '@src/utils/sorting-utils';
+import { GetRecommendationAlbumsCriteriaDto } from './dto/get-albums-recommendations.dto';
+import { getRandomNumbers } from '@src/utils/number-utils';
 
 @Injectable()
 export class AlbumsService {
@@ -31,6 +33,12 @@ export class AlbumsService {
     }),
   };
 
+  /**
+   * Search album by criteria
+   *
+   * @param query {@link SearchAlbumCriteriaDto}
+   * @returns list of album that matches the criteria with pagination information
+   */
   async searchAlbums(
     query: SearchAlbumCriteriaDto,
   ): Promise<SearchAlbumResult> {
@@ -132,7 +140,7 @@ export class AlbumsService {
     id: number,
     query: GetAlbumByIdCriteriaDto,
   ): Promise<dto.Album> {
-    this.logger.log(
+    this.logger.debug(
       `Get album by id ${id} with criteria: ${JSON.stringify(query)}`,
     );
     const selectFields = this.getSelectFields(query);
@@ -141,6 +149,48 @@ export class AlbumsService {
       where: { id },
     });
     return this.albumMapperService.convertAlbumToDto(result, result?.songs);
+  }
+
+  /**
+   * This is a simplified example of a album recommendation system. In a real-world application, album recommendations would take many factors into account, such as:
+   * - User preferences (e.g., genre, artists, etc.)
+   * - Playlist history (albums and songs previously added to playlists or liked by the user)
+   * - Album and Song release dates (new releases or songs that match the user's listening pattern)
+   * - Current trends (popular songs, trending genres, etc.)
+   *
+   * For the purpose of this example, the method simply fetches a set of random albums from the database as a placeholder for a more sophisticated recommendation engine.
+   *
+   * @param query {@link GetRecommendationCriteriaDto}
+   */
+  async getRecommendationAlbums(
+    query: GetRecommendationAlbumsCriteriaDto,
+  ): Promise<dto.Album[]> {
+    this.logger.debug(
+      `Get recommended albums with criteria: ${JSON.stringify(query)}`,
+    );
+    const { limit } = query;
+    const totalCount = await this.datasourceService.album.count();
+    const ids = getRandomNumbers(limit, totalCount);
+
+    const selectFields = this.getSelectFields(query);
+    const orderBy = getOrderBy<
+      SearchAlbumCriteriaDto,
+      Prisma.AlbumOrderByWithRelationInput
+    >(query, this.FIELD_MAPPING);
+
+    const albums = await this.datasourceService.album.findMany({
+      select: selectFields,
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      orderBy,
+      take: limit,
+    });
+
+    const albumsDto = this.albumMapperService.transformAlbumsDbToDto(albums, 0);
+    return albumsDto;
   }
 
   /**
