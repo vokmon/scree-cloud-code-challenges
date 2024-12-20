@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SongsController } from '@src/songs/songs.controller';
 import { SongsService } from '@src/songs/songs.service';
 import { ZodValidationPipe } from '@src/pipes/zod-validation-pipe';
-import { Song } from '@src/songs/dto/songs.dto';
+import { Song } from '@src/dto/song.dto';
 import { MAX_LIMIT } from '@src/constants/PaginationConstants';
 import { GetRecommendationCriteriaSchema } from '@src/songs/dto/get-recommendations.dto';
 
@@ -88,6 +88,7 @@ const mockSongs: Song[] = [
     year: 2009,
     totalPlays: 75551,
     album: {
+      id: 1,
       title: 'Fearless\n(Platinum edition)',
     },
     writers: [
@@ -111,6 +112,7 @@ const mockSongs: Song[] = [
     year: 2006,
     totalPlays: 6680,
     album: {
+      id: 2,
       title: 'Taylor Swift',
     },
     writers: [
@@ -134,6 +136,7 @@ const mockSongs: Song[] = [
     year: 2006,
     totalPlays: 15608,
     album: {
+      id: 3,
       title: 'Taylor Swift',
     },
     writers: [

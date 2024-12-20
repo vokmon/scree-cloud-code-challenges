@@ -15,40 +15,6 @@ describe('SongsController - Search Songs', () => {
   let service: SongsService;
   const pipe = new ZodValidationPipe(SearchSongCriteriaSchema);
 
-  const mockResult: SearchSongResult = {
-    data: [
-      {
-        index: 0,
-        title: 'Song A',
-        year: 2022,
-        totalPlays: 100,
-        album: {
-          title: 'Album A',
-        },
-        writers: [
-          {
-            writer: {
-              name: 'Taylor Swift',
-            },
-          },
-        ],
-        artists: [
-          {
-            artist: {
-              name: 'Taylor Swift',
-            },
-          },
-        ],
-      },
-    ],
-    pagination: {
-      total: 1,
-      page: 1,
-      limit: 10,
-      totalPages: 0,
-    },
-  };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SongsController],
@@ -178,3 +144,38 @@ describe('SongsController - Search Songs', () => {
     expect(result).toEqual(mockResult);
   });
 });
+
+const mockResult: SearchSongResult = {
+  data: [
+    {
+      index: 0,
+      title: 'Song A',
+      year: 2022,
+      totalPlays: 100,
+      album: {
+        id: 1,
+        title: 'Album A',
+      },
+      writers: [
+        {
+          writer: {
+            name: 'Taylor Swift',
+          },
+        },
+      ],
+      artists: [
+        {
+          artist: {
+            name: 'Taylor Swift',
+          },
+        },
+      ],
+    },
+  ],
+  pagination: {
+    total: 1,
+    page: 1,
+    limit: 10,
+    totalPages: 0,
+  },
+};

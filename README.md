@@ -121,22 +121,22 @@ $ bun run start:demo
 5. Start local postgres database in Docker
 ```bash
 # First time initialization
-$ docker compose up dev-db -d
+$ docker compose -f docker-compose-dev.yml up dev-db -d
 
 # Remove the container
-$ docker compose down
+$ docker compose -f docker-compose-dev.yml down
 
 # Start container
-$ docker compose start
+$ docker compose -f docker-compose-dev.yml start
 
 # Stop container
-$ docker compose stop
+$ docker compose -f docker-compose-dev.yml stop
 
 # Stop with specific service
-$ docker compose stop myservicename
+$ docker compose -f docker-compose-dev.yml stop myservicename
 
 # Remove the specific service
-$ docker compose rm -f myservicename
+$ docker compose -f docker-compose-dev.yml rm -f myservicename
 
 ```
 
@@ -170,8 +170,22 @@ $ bun db:dev:reset
 
 ```
 
+8. Create module, controller and provider
+```bash
+# Create module
+$ nest g module module_name
 
-## Run the prject locally
+# Create controller
+$ nest g controller controller_name
+
+# Create provider
+$ nest g module provider_name
+
+# Create resource that will automatically add module, controller and provider
+$ nest g resource resource_name
+
+```
+
 
 
 - Name of artists and writers - store as one field as some names are unclear which one is first name or last name such as Shellback or Robert Ellis Orrall or St. Vincent

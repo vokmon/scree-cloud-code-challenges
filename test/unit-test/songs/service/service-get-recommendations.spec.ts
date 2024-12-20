@@ -3,6 +3,7 @@ import { mockDeep } from 'vitest-mock-extended';
 import { SongsService } from '@src/songs/songs.service';
 import { DatasourceService } from '@src/datasource/datasource.service';
 import { GetRecommendationCriteriaDto } from '@src/songs/dto/get-recommendations.dto';
+import { SongMapperService } from '@src/mappers/song-mapper.dto';
 
 describe('SongsService - getRecommendationSongs', () => {
   let service: SongsService;
@@ -37,7 +38,7 @@ describe('SongsService - getRecommendationSongs', () => {
 
   beforeEach(() => {
     datasourceServiceMock = mockDeep<DatasourceService>();
-    service = new SongsService(datasourceServiceMock);
+    service = new SongsService(datasourceServiceMock, new SongMapperService());
   });
 
   it('should fetch random songs based on criteria', async () => {

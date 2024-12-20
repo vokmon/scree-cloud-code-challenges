@@ -1,4 +1,4 @@
-import { getSortingSchema } from '@src/dto/sorting.dto';
+import { getSortingSchema } from '@src/dto/query/sorting.dto';
 import { z } from 'zod';
 
 export const IncludePlayDataSchema = z.object({
@@ -18,37 +18,3 @@ export const SongSortingSchema = getSortingSchema([
   'year',
   'totalPlays',
 ]);
-
-export type Song = {
-  index?: number;
-  id?: number;
-  title: string;
-  album: SongAlbum;
-  year: number;
-  totalPlays: number;
-  writers: Writer[];
-  artists: Artist[];
-  plays?: PlayData[];
-};
-
-export type Writer = {
-  writer: Person;
-};
-
-export type Artist = {
-  artist: Person;
-};
-
-export type Person = {
-  name: string;
-};
-
-export type SongAlbum = {
-  title: string;
-};
-
-export type PlayData = {
-  month: number;
-  year: number;
-  playCount: number;
-};

@@ -11,44 +11,17 @@ import {
 } from '@src/songs/dto/search-songs.dto';
 import { DatasourceService } from '@src/datasource/datasource.service';
 import { Prisma } from '@prisma/client';
+import { SongMapperService } from '@src/mappers/song-mapper.dto';
 
 describe('SongsService - searchSongs', () => {
   let service: SongsService;
   let datasourceServiceMock;
 
-  const songsMock = [
-    {
-      title: 'Love Song',
-      year: 2023,
-      totalPlays: 100,
-      album: { title: 'Love Album' },
-    },
-    {
-      title: 'Another Love',
-      year: 2023,
-      totalPlays: 50,
-      album: { title: 'Hits' },
-    },
-  ];
-
-  const songsWithPlayDataMock = [
-    {
-      title: 'Top Song',
-      year: 2022,
-      totalPlays: 200,
-      album: { title: 'Top Album' },
-      plays: [
-        { month: 1, year: 2022, playCount: 50 },
-        { month: 2, year: 2022, playCount: 150 },
-      ],
-    },
-  ];
-
   const selectFields: Prisma.SongSelect = {
     title: true,
     year: true,
     totalPlays: true,
-    album: { select: { title: true } },
+    album: { select: { id: true, title: true } },
     writers: {
       select: {
         writer: {
@@ -103,7 +76,7 @@ describe('SongsService - searchSongs', () => {
 
   beforeEach(() => {
     datasourceServiceMock = mockDeep<DatasourceService>();
-    service = new SongsService(datasourceServiceMock);
+    service = new SongsService(datasourceServiceMock, new SongMapperService());
   });
 
   it('should return songs filtered by year and keyword with pagination', async () => {
@@ -173,6 +146,7 @@ describe('SongsService - searchSongs', () => {
           plays: {
             select: { month: true, year: true, playCount: true },
             orderBy: [{ year: 'desc' }, { month: 'desc' }],
+            take: 12,
           },
         }),
       }),
@@ -312,3 +286,31 @@ describe('SongsService - searchSongs', () => {
     });
   };
 });
+
+const songsMock = [
+  {
+    title: 'Love Song',
+    year: 2023,
+    totalPlays: 100,
+    album: { id: 1, title: 'Love Album' },
+  },
+  {
+    title: 'Another Love',
+    year: 2023,
+    totalPlays: 50,
+    album: { id: 2, title: 'Hits' },
+  },
+];
+
+const songsWithPlayDataMock = [
+  {
+    title: 'Top Song',
+    year: 2022,
+    totalPlays: 200,
+    album: { title: 'Top Album' },
+    plays: [
+      { month: 1, year: 2022, playCount: 50 },
+      { month: 2, year: 2022, playCount: 150 },
+    ],
+  },
+];

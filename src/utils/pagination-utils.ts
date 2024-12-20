@@ -1,3 +1,8 @@
+/**
+ * Generate pagination related query statement
+ * @param {page: number, limit: number}
+ * @returns related query statement for pagination query satement
+ */
 export function getPaginationQueryObject({
   page,
   limit,
@@ -12,6 +17,11 @@ export function getPaginationQueryObject({
   };
 }
 
+/**
+ * Get record index
+ * @param {index: number, skip: number}
+ * @returns index
+ */
 export function getRecordIndex({
   index,
   skip,
@@ -22,6 +32,12 @@ export function getRecordIndex({
   return 1 + index + skip;
 }
 
+/**
+ * Generate pagination object to return in the response
+ *
+ * @param {data: [], total: number, page: number, limit: number}
+ * @returns pagination object to return in the response
+ */
 export function getPaginationObject({
   data,
   total,

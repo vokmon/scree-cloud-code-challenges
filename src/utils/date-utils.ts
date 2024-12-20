@@ -1,4 +1,7 @@
-// Function to get the current month in YYYY-MM format
+/**
+ * Function to get the current month in YYYY-MM format
+ * @returns current month and year in YYYY-MM format
+ */
 export const getCurrentMonth = (): string => {
   const now = new Date();
   const year = now.getFullYear();

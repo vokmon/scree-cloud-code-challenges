@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { Pagination, PaginationSchema } from '../../dto/pagination.dto';
-import { IncludePlayDataSchema, Song, SongSortingSchema } from './songs.dto';
+import { Pagination, PaginationSchema } from '../../dto/query/pagination.dto';
+import { IncludePlayDataSchema, SongSortingSchema } from './songs.dto';
+import { Song } from '@src/dto/song.dto';
 
 // Validation schema for the "getSongsByYear" query parameters
 export const SearchSongCriteriaSchema = z.object({

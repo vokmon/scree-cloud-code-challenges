@@ -89,6 +89,7 @@ const mockSongs: TopSongs[] = [
           totalPlays: 37084,
           year: 2010,
           album: {
+            id: 1,
             title: 'Speak Now\n(Deluxe edition)',
           },
           writers: [
@@ -115,6 +116,7 @@ const mockSongs: TopSongs[] = [
           totalPlays: 18018,
           year: 2017,
           album: {
+            id: 2,
             title: 'Reputation',
           },
           writers: [
@@ -147,6 +149,7 @@ const mockSongs: TopSongs[] = [
           totalPlays: 98869,
           year: 2014,
           album: {
+            id: 3,
             title: '1989',
           },
           writers: [
@@ -173,6 +176,7 @@ const mockSongs: TopSongs[] = [
           totalPlays: 9344,
           year: 2013,
           album: {
+            id: 4,
             title: 'One Chance Soundtrack',
           },
           writers: [
@@ -205,6 +209,7 @@ const mockSongs: TopSongs[] = [
           totalPlays: 80057,
           year: 2014,
           album: {
+            id: 5,
             title: '1989',
           },
           writers: [
@@ -231,6 +236,7 @@ const mockSongs: TopSongs[] = [
           totalPlays: 45495,
           year: 2012,
           album: {
+            id: 6,
             title: 'Red',
           },
           writers: [

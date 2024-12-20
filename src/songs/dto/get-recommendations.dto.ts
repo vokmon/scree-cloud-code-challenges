@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { IncludePlayDataSchema, SongSortingSchema } from './songs.dto';
-import { PaginationSchema } from '@src/dto/pagination.dto';
+import { PaginationSchema } from '@src/dto/query/pagination.dto';
 
 const LimitSchema = PaginationSchema.pick({
   limit: true,

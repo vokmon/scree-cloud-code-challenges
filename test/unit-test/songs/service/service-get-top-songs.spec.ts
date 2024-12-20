@@ -3,6 +3,7 @@ import { mockDeep } from 'vitest-mock-extended';
 import { SongsService } from '@src/songs/songs.service';
 import { DatasourceService } from '@src/datasource/datasource.service';
 import { TopSongs } from '@src/songs/dto/get-top-songs.dto';
+import { SongMapperService } from '@src/mappers/song-mapper.dto';
 
 describe('SongsService - getTopSongs', () => {
   let service: SongsService;
@@ -10,7 +11,7 @@ describe('SongsService - getTopSongs', () => {
 
   beforeEach(() => {
     datasourceServiceMock = mockDeep<DatasourceService>();
-    service = new SongsService(datasourceServiceMock);
+    service = new SongsService(datasourceServiceMock, new SongMapperService());
   });
 
   it('should return top songs by month and year', async () => {
@@ -51,6 +52,7 @@ const mockData: TopSongs[] = [
           totalPlays: 37084,
           year: 2010,
           album: {
+            id: 1,
             title: 'Speak Now\n(Deluxe edition)',
           },
           writers: [
@@ -77,6 +79,7 @@ const mockData: TopSongs[] = [
           totalPlays: 18018,
           year: 2017,
           album: {
+            id: 2,
             title: 'Reputation',
           },
           writers: [
@@ -109,6 +112,7 @@ const mockData: TopSongs[] = [
           totalPlays: 98869,
           year: 2014,
           album: {
+            id: 3,
             title: '1989',
           },
           writers: [
@@ -135,6 +139,7 @@ const mockData: TopSongs[] = [
           totalPlays: 9344,
           year: 2013,
           album: {
+            id: 4,
             title: 'One Chance Soundtrack',
           },
           writers: [
@@ -167,6 +172,7 @@ const mockData: TopSongs[] = [
           totalPlays: 80057,
           year: 2014,
           album: {
+            id: 5,
             title: '1989',
           },
           writers: [
@@ -193,6 +199,7 @@ const mockData: TopSongs[] = [
           totalPlays: 45495,
           year: 2012,
           album: {
+            id: 6,
             title: 'Red',
           },
           writers: [

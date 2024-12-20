@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, Song } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { DatasourceService } from '@src/datasource/datasource.service';
 import {
   SearchSongCriteriaDto,
@@ -8,19 +8,22 @@ import {
 import {
   getPaginationObject,
   getPaginationQueryObject,
-  getRecordIndex,
 } from '@src/utils/pagination-utils';
-import * as dto from './dto/songs.dto';
+import * as dto from '@src/dto/song.dto';
 import { GetSongByIdCriteriaDto } from './dto/get-songs-by-id.dto';
 import { GetRecommendationCriteriaDto } from './dto/get-recommendations.dto';
 import { getRandomNumbers } from '@src/utils/number-utils';
 import { GetTopSongsCriteriaDto, TopSongs } from './dto/get-top-songs.dto';
+import { SongMapperService } from '@src/mappers/song-mapper.dto';
 
 @Injectable()
 export class SongsService {
   private readonly logger = new Logger(SongsService.name);
 
-  constructor(private datasourceService: DatasourceService) {}
+  constructor(
+    private datasourceService: DatasourceService,
+    private songMapperService: SongMapperService,
+  ) {}
 
   /**
    * Field mapping for sorting string to actual fields
@@ -105,7 +108,10 @@ export class SongsService {
       }),
     ]);
 
-    const songsDto = this.transformSongDbToDto(songs, pagination.skip);
+    const songsDto = this.songMapperService.transformSongDbToDto(
+      songs,
+      pagination.skip,
+    );
     return {
       data: songsDto,
       pagination: getPaginationObject({ data: songsDto, total, page, limit }),
@@ -133,7 +139,7 @@ export class SongsService {
     if (!song) {
       return null;
     }
-    const dto = this.transformSongDbToDto([song], 0);
+    const dto = this.songMapperService.transformSongDbToDto([song], 0);
     return dto[0];
   }
 
@@ -168,7 +174,7 @@ export class SongsService {
       take: limit,
     });
 
-    const songsDto = this.transformSongDbToDto(songs, 0);
+    const songsDto = this.songMapperService.transformSongDbToDto(songs, 0);
     return songsDto;
   }
 
@@ -190,6 +196,7 @@ export class SongsService {
               year: true,
               album: {
                 select: {
+                  id: true,
                   title: true,
                 },
               },
@@ -234,24 +241,18 @@ export class SongsService {
     return results;
   }
 
-  private transformSongDbToDto(songs: Song[], offset: number): dto.Song[] {
-    const songsDto = songs.map((song, index) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      return {
-        index: getRecordIndex({ index, skip: offset }),
-        ...song,
-      } as unknown as dto.Song;
-    });
-    return songsDto;
-  }
-
+  /**
+   * Provide {@link Prisma.SongSelect} for common select statement
+   * @param criteria {@link SearchSongCriteriaDto} to build the select object
+   * @returns {@link Prisma.SongSelect}
+   */
   private getSongSelection(criteria: SearchSongCriteriaDto): Prisma.SongSelect {
     const { includePlayData } = criteria;
     return {
       title: true,
       year: true,
       totalPlays: true,
-      album: { select: { title: true } },
+      album: { select: { id: true, title: true } },
       writers: {
         select: {
           writer: {
@@ -274,6 +275,11 @@ export class SongsService {
     };
   }
 
+  /**
+   * Determin whether the plays data should be included in the select statement
+   * @param includePlayData the flag to include or not
+   * @returns select object for Play data
+   */
   private getPlaysSelection(includePlayData: boolean): Prisma.SongSelect {
     this.logger.log(`Should include play data: ${includePlayData}`);
     return includePlayData
@@ -285,11 +291,17 @@ export class SongsService {
               playCount: true,
             },
             orderBy: [{ year: 'desc' }, { month: 'desc' }],
+            take: 12,
           },
         }
       : {};
   }
 
+  /**
+   * Get order by statement by {@link SearchSongCriteriaDto}
+   * @param criteria {@link SearchSongCriteriaDto}
+   * @returns {@link Prisma.SongOrderByWithRelationInput}
+   */
   private getOrderBy(
     criteria: SearchSongCriteriaDto,
   ): Prisma.SongOrderByWithRelationInput[] {

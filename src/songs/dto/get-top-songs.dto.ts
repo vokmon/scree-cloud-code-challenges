@@ -3,9 +3,9 @@ import {
   MAX_LIMIT,
   MIN_LIMIT,
 } from '@src/constants/PaginationConstants';
+import { Song } from '@src/dto/song.dto';
 import { getCurrentMonth } from '@src/utils/date-utils';
 import { z } from 'zod';
-import { Song } from './songs.dto';
 
 // Define the regular expression for the YYYY-MM format
 const yearMonthsPattern =

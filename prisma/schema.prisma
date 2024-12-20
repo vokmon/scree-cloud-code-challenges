@@ -20,8 +20,8 @@ model Person {
   name       String
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
-  SongWriter SongWriter[]
-  SongArtist SongArtist[]
+  songWriter SongWriter[]
+  songArtist SongArtist[]
 }
 
 // Album model: Represents an album
@@ -30,7 +30,7 @@ model Album {
   title     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Song      Song[]
+  songs      Song[]
 }
 
 // Song model: Represents a song

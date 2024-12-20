@@ -13,37 +13,6 @@ describe('SongsController - Get Song by Id', () => {
   let service: SongsService;
   const pipe = new ZodValidationPipe(GetSongByIdCriteriaSchema);
 
-  const mockSong = {
-    index: 1,
-    title: 'Clean',
-    year: 2014,
-    totalPlays: 98869,
-    album: {
-      id: 1,
-      title: '1989',
-    },
-    plays: [
-      {
-        month: 1,
-        year: 2024,
-        playCount: 206,
-      },
-    ],
-    writers: [
-      {
-        writer: {
-          name: 'Taylor Swift',
-        },
-      },
-    ],
-    artists: [
-      {
-        artist: {
-          name: 'Taylor Swift',
-        },
-      },
-    ],
-  };
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SongsController],
@@ -107,3 +76,35 @@ describe('SongsController - Get Song by Id', () => {
     });
   });
 });
+
+const mockSong = {
+  index: 1,
+  title: 'Clean',
+  year: 2014,
+  totalPlays: 98869,
+  album: {
+    id: 1,
+    title: '1989',
+  },
+  plays: [
+    {
+      month: 1,
+      year: 2024,
+      playCount: 206,
+    },
+  ],
+  writers: [
+    {
+      writer: {
+        name: 'Taylor Swift',
+      },
+    },
+  ],
+  artists: [
+    {
+      artist: {
+        name: 'Taylor Swift',
+      },
+    },
+  ],
+};
