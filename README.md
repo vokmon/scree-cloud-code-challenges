@@ -1,6 +1,92 @@
 # Backend Challenge (SwiftCloud)
 This repository presents a solution to the SwiftCloud coding challenge, assigned as part of the ScreenCloud test interview process. The solution is implemented using NestJs with Typescript.
 
+## Analysis
+The goal of this API is to provide a flexible way to expose song data in various formats, allowing for flexible querying and sorting. The API will serve the following use cases
+### 1. **List All Songs with Pagination**  
+Users can also list all songs with pagination.  
+  **Example**:  
+  `GET /songs`
+
+### 2. **Search Songs by Keyword**  
+Users can search for songs using a keyword, which will be matched against song name, album name, writers, and artists.  
+  **Example**:  
+  `GET /songs?keyword=Taylor&orderBy=totalPlays&orderDirection=asc&page=1&limit=10`
+
+### 3. **Find Songs by Year**  
+The API can be used to find songs released in a specific year, with options for sorting and pagination.
+  **Example**:  
+  `GET /songs?year=2024&orderBy=totalPlays&orderDirection=desc&page=1&limit=10`
+
+### 4. **Find Songs by Keyword and Year**  
+The user may want to find which songs that featuring with Ed Sheeran in 2024
+  **Example**:  
+  `GET /songs?year=2024&keyword=Ed Sheeran`
+
+### 5. **Include Play Data Statistics**  
+The API can include play data statistics by adding the `includePlayData=true` query parameter.  
+  **Example**:  
+  `GET /songs?keyword=love&includePlayData=true`
+
+## Design
+Import the data as csv and fully migrated to database for query performance
+![Database design](./doc_resources/database_diagram.png)
+
+## Implementation
+The chosen technologies are
+- Bun for javascript runtime and package management
+- NestJS for building scalable and maintainable server-side applications.
+- Zod library for object validation
+- Postgres for database
+- Prisma for database ORM, data migration and seeding
+- Docker for development and delivery
+
+## Testing
+- Unit test - Use unit tests with mocks to test individual components.
+![Database design](./doc_resources/unit-test-and-coverage.png)
+
+- Integration and E2E test - For integration and end-to-end tests, a test database is created in Docker. The service is started, and actual API endpoints are tested against the test database. After the tests, the test database is destroyed during the teardown process
+![Database design](./doc_resources/e2e-test_1.png)
+![Database design](./doc_resources/e2e-test_2.png)
+
+## Delivery
+Docker is used to build and package the application.
+For demo purposes, a `docker-compose-demo.yml` file is provided. This file is used to set up the environment, including building the application, creating the database, and migrating the data.
+[Step to run the demo](#run-the-demo)
+
+## Note
+
+- Name of artists and writers - store as one field as some names are unclear which one is first name or last name such as Shellback or Robert Ellis Orrall or St. Vincent
+
+- One song can be only in one album; Taylor does not the same song across multiple albums.
+
+- Introduce a new column, Total Play - represent the numbers of song has been played. This field will be updated whenever a song is played.
+
+<br>
+
+## Idea of future features
+- **Enhanced Song Metadata**: Include more data such as image covers, genre, lyrics, song duration and more detailed about the songs.
+
+- **Authentication and Role-Based Access**: Implement role-based authentication for secure access to APIs. Only authorized users are allowed to perform actions like adding, updating, or deleting songs, artists, writers, or other related information.
+
+- **Play Count**: Currently, the play counts are for the current year. It could be enhanced to store more. Also add a feature to maintain this information.
+
+- **Integrated Play Count Tracking**: Maintain the total play counts when the songs are played on platforms such as YouTube, Spotify, Apple Music, and etc.
+
+- **Data Management**: Abilities to add new songs or updte data such as songs including totalPlays for each songs and play count in each month.
+
+- **Recommendation System**: Develop a recommendation engine for songs and albums using diverse data sources such as current trends, popular tracks, user preferences playlist, and habbits, Studio-promoted / advertised songs and albums. 
+
+- **Feedback Analysis**: Pull feedback and comments related to the songs and then summarize it to provide Taylor Swift insights.
+
+- **Concert and Tour Optimization**: Report for Taylor Swift and her staffs about the fan's feedback for her concerts and tours preparation.
+
+- **More...** 
+
+<br><br>
+
+# Setup and Configuration 
+
 ## Environment
 1. Node - v22.12.0
 2. Bun - Support typescript and environment file natively
@@ -9,6 +95,7 @@ This repository presents a solution to the SwiftCloud coding challenge, assigned
   $ npm install -g bun
   ```
 3. Docker
+4. Postgress database
 
 ## Run the demo
 
@@ -185,25 +272,3 @@ $ nest g module provider_name
 $ nest g resource resource_name
 
 ```
-
-
-
-- Name of artists and writers - store as one field as some names are unclear which one is first name or last name such as Shellback or Robert Ellis Orrall or St. Vincent
-- Month is number from 1 - 12
-- One song can be only in one album; Taylor does not reuse the song in albums
-- Introduce a new column, Total Play.
-  when the song is played, it needs to update this field.
-  Benefits
-  Performance: Fetching the total play count is extremely fast because it's stored directly in the Song record, eliminating the need for repeated aggregation.
-
-  Lower Latency: Once the value is stored, retrieval is almost instantaneous, especially useful when the total play count is queried frequently.
-
-  Easier Analytics: If you need to use the total plays count for analytics, sorting, or filtering, it’s faster and more efficient than calculating the total every time.
-
-  Downside
-  Data Integrity Issues: need to ensure the totalPlays field is updated correctly, either by using application logic or database triggers, which introduces complexity.
-
-  - Api Document http://localhost:8000/api-docs#
-
-- Adding new songs or updating existing songs including totalPlays for each songs and play count in each month are not included at the time round.
-

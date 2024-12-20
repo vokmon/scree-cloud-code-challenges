@@ -194,7 +194,6 @@ describe('/albums/recommendations (GET)', () => {
       .query({ includeSongData: 'true' })
       .expect(HttpStatus.OK);
 
-    console.log(response.body);
     response.body.forEach((album) => {
       expect(album).toHaveProperty('songs');
     });
