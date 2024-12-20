@@ -51,10 +51,9 @@ describe('SongsController - Get Song by Id', () => {
     // Mock the service method to return null
     vi.spyOn(service, 'getSongById').mockResolvedValue(null);
 
-    const result = await controller.getSongById(songId, query);
-
-    // Check if an empty object is returned
-    expect(result).toEqual({});
+    await expect(controller.getSongById(songId, query)).rejects.toMatchObject(
+      {},
+    );
     expect(service.getSongById).toHaveBeenCalledWith(songId, query);
   });
 

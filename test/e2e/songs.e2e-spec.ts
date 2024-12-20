@@ -105,9 +105,9 @@ describe('/songs/:id (GET)', () => {
     const response = await request(url)
       .get(`/songs/${songId}`)
       .query(query)
-      .expect(HttpStatus.OK);
+      .expect(HttpStatus.NO_CONTENT);
 
-    expect(response.body).toEqual({});
+    expect(response.body).toMatchObject({});
   });
 
   it('should return 400 for invalid query params', async () => {

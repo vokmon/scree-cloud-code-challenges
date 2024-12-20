@@ -5,6 +5,8 @@ import {
   Logger,
   Param,
   ParseIntPipe,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { SongsService } from './songs.service';
 import {
@@ -198,7 +200,7 @@ export class SongsController {
     );
     const song = await this.songsService.getSongById(id, query);
     if (!song) {
-      return {};
+      throw new HttpException('No Content', HttpStatus.NO_CONTENT);
     }
     return song;
   }

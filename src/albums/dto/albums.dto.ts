@@ -1,3 +1,4 @@
+import { getSortingSchema } from '@src/dto/query/sorting.dto';
 import { z } from 'zod';
 
 export const IncludeSongDataSchema = z.object({
@@ -10,3 +11,5 @@ export const IncludeSongDataSchema = z.object({
     })
     .transform((val) => val.toLowerCase() === 'true'),
 });
+
+export const AlbumSortingSchema = getSortingSchema(['albumName']);

@@ -111,7 +111,7 @@ async function addPerson(songData: SongData[]): Promise<Person[]> {
 }
 
 async function addAlbum(songData: SongData[]): Promise<Album[]> {
-  const albums = songData.map((song) => song.album);
+  const albums = Array.from(new Set(songData.map((song) => song.album)));
   const albumPromises = albums.map((allbum: string) => {
     return prisma.album.create({
       data: { title: allbum },

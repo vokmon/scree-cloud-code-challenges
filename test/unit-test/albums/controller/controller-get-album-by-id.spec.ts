@@ -44,14 +44,14 @@ describe('AlbumsController - Get Album by Id', () => {
   });
 
   it('should return null when invalid Id is provided', async () => {
-    const albumId = 1;
+    const albumId = 999;
     const query: GetAlbumByIdCriteriaDto = { includeSongData: false };
 
     vi.spyOn(service, 'getAlbumById').mockResolvedValue(null);
 
-    const result = await controller.getAlbumById(albumId, query);
-
-    expect(result).toEqual(null);
+    await expect(controller.getAlbumById(albumId, query)).rejects.toMatchObject(
+      {},
+    );
     expect(service.getAlbumById).toHaveBeenCalledWith(albumId, query);
   });
 

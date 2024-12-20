@@ -15,6 +15,7 @@ import { GetRecommendationCriteriaDto } from './dto/get-recommendations.dto';
 import { getRandomNumbers } from '@src/utils/number-utils';
 import { GetTopSongsCriteriaDto, TopSongs } from './dto/get-top-songs.dto';
 import { SongMapperService } from '@src/mappers/song-mapper.dto';
+import { getOrderBy } from '@src/utils/sorting-utils';
 
 @Injectable()
 export class SongsService {
@@ -56,7 +57,10 @@ export class SongsService {
     const { year, keyword, page, limit } = criteria;
     const selectFields = this.getSongSelection(criteria);
     const pagination = getPaginationQueryObject({ page, limit });
-    const orderBy = this.getOrderBy(criteria);
+    const orderBy = getOrderBy<
+      SearchSongCriteriaDto,
+      Prisma.SongOrderByWithRelationInput
+    >(criteria, this.FIELD_MAPPING);
 
     const whereCriteria: Prisma.SongWhereInput = {
       ...(year ? { year } : {}),
@@ -158,7 +162,10 @@ export class SongsService {
     query: GetRecommendationCriteriaDto,
   ): Promise<dto.Song[]> {
     const selectFields = this.getSongSelection(query);
-    const orderBy = this.getOrderBy(query);
+    const orderBy = getOrderBy<
+      SearchSongCriteriaDto,
+      Prisma.SongOrderByWithRelationInput
+    >(query, this.FIELD_MAPPING);
     const { limit } = query;
 
     const totalCount = await this.datasourceService.song.count();
@@ -295,29 +302,5 @@ export class SongsService {
           },
         }
       : {};
-  }
-
-  /**
-   * Get order by statement by {@link SearchSongCriteriaDto}
-   * @param criteria {@link SearchSongCriteriaDto}
-   * @returns {@link Prisma.SongOrderByWithRelationInput}
-   */
-  private getOrderBy(
-    criteria: SearchSongCriteriaDto,
-  ): Prisma.SongOrderByWithRelationInput[] {
-    const { orderBy, orderDirection } = criteria;
-    this.logger.log(
-      `Create order by from: order by: ${orderBy}, order direction: ${orderDirection}`,
-    );
-    const orderByCriteria = orderBy
-      ? orderBy.map((field) => {
-          const mapping = this.FIELD_MAPPING[field];
-          if (mapping) {
-            return mapping(orderDirection);
-          }
-        })
-      : [];
-    this.logger.log(`Order by: ${JSON.stringify(orderByCriteria)}`);
-    return orderByCriteria;
   }
 }
