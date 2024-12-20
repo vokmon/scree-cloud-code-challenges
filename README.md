@@ -113,7 +113,10 @@ The api document is provided with Swagger. To access the api-docs, visit the lin
 <br>
 
 ## Idea of future features
-- **Enhanced Song Metadata**: Include more data such as image covers, genre, lyrics, song duration and more detailed about the songs.
+
+- **Song Information**: Include more data such as image covers, genre, lyrics, song duration and more detailed about the songs.
+
+- **Search Improvement**: Enable users to view the top songs filtered by a specific month and year.
 
 - **Authentication and Role-Based Access**: Implement role-based authentication for secure access to APIs. Only authorized users are allowed to perform actions like adding, updating, or deleting songs, artists, writers, or other related information.
 

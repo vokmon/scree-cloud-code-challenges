@@ -11,6 +11,7 @@ export function SearchSongSwaggerDto() {
       summary: 'Search songs',
       description: `
   Retrieve a list of songs based on search criteria such as year, keyword, and more.
+  Here are some examle of the use cases how this api can be used.
   
   ### 1. **List All Songs with Pagination**  
   Users can also list all songs with pagination.  
