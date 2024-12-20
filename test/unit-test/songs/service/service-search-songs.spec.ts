@@ -11,7 +11,6 @@ import {
 } from '@src/songs/dto/search-songs.dto';
 import { DatasourceService } from '@src/datasource/datasource.service';
 import { Prisma } from '@prisma/client';
-import { SongMapperService } from '@src/mappers/song-mapper.dto';
 
 describe('SongsService - searchSongs', () => {
   let service: SongsService;
@@ -76,7 +75,7 @@ describe('SongsService - searchSongs', () => {
 
   beforeEach(() => {
     datasourceServiceMock = mockDeep<DatasourceService>();
-    service = new SongsService(datasourceServiceMock, new SongMapperService());
+    service = new SongsService(datasourceServiceMock);
   });
 
   it('should return songs filtered by year and keyword with pagination', async () => {

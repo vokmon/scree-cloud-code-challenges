@@ -1,6 +1,35 @@
 # Backend Challenge (SwiftCloud)
 This repository presents a solution to the SwiftCloud coding challenge, assigned as part of the ScreenCloud test interview process. The solution is implemented using NestJs with Typescript.
 
+## Table of Contents
+- [Project Overview](#project-overview)
+  - [Analysis](#analysis)
+  - [Design](#design)
+  - [Implementation](#implementation)
+  - [Testing](#testing)
+  - [Delivery](#delivery)
+- [API documentation](#api-documentation)
+- [Idea of future features](#idea-of-future-features)
+- [Setup and Configuration](#setup-and-configuration)
+  - [Environment](#environment)
+  - [Run the demo](#run-the-demo)
+    - [Option 1 Run the service with Docker](#option-1-run-the-service-with-docker)
+    - [Option 1.1 Run the service directly with Docker](#option-11-run-the-service-directly-with-docker)
+    - [Option 2 Run the service directly on local machine](#option-2-run-the-service-directly-on-local-machine)
+  - [Project setup and scripts for development](#project-setup-and-scripts-for-development)
+    - [Environment setup](#environment-setup)
+    - [Project setup](#project-setup)
+    - [Compile and run the project](#compile-and-run-the-project)
+    - [Run tests](#run-tests)
+      - [Unit test](#unit-test)
+      - [E2E test](#e2e-test)
+    - [Start local postgres database in Docker](#start-local-postgres-database-in-docker)
+    - [Prisma migration](#prisma-migration)
+    - [Dev scripts](#dev-scripts)
+    - [Create module, controller and provider](#create-module-controller-and-provider)
+
+# Project Overview
+
 ## Analysis
 The goal of this API is to provide a flexible way to expose song data in various formats, allowing for flexible querying and sorting. The API will serve the following use cases
 ### 1. **List All Songs with Pagination**  
@@ -28,9 +57,25 @@ The API can include play data statistics by adding the `includePlayData=true` qu
   **Example**:  
   `GET /songs?keyword=love&includePlayData=true`
 
+<br>
+
 ## Design
 Import the data as csv and fully migrated to database for query performance
 ![Database design](./doc_resources/database_diagram.png)
+
+<br>
+
+### Note
+
+- export data as csv from https://docs.google.com/spreadsheets/d/1BFT5RlMKw1blz10bUrsVuWI6FGjzsT72KHE-jRiSXFk/edit?gid=619956793#gid=619956793
+
+- Name of artists and writers - store as one field as some names are unclear which one is first name or last name such as Shellback or Robert Ellis Orrall or St. Vincent
+
+- One song can be only in one album; Taylor does not the same song across multiple albums.
+
+- Introduce a new column, Total Play - represent the numbers of song has been played. This field will be updated whenever a song is played.
+
+<br>
 
 ## Implementation
 The chosen technologies are
@@ -41,6 +86,8 @@ The chosen technologies are
 - Prisma for database ORM, data migration and seeding
 - Docker for development and delivery
 
+<br>
+
 ## Testing
 - Unit test - Use unit tests with mocks to test individual components.
 ![Database design](./doc_resources/unit-test-and-coverage.png)
@@ -49,18 +96,19 @@ The chosen technologies are
 ![Database design](./doc_resources/e2e-test_1.png)
 ![Database design](./doc_resources/e2e-test_2.png)
 
+<br>
+
 ## Delivery
 Docker is used to build and package the application.
 For demo purposes, a `docker-compose-demo.yml` file is provided. This file is used to set up the environment, including building the application, creating the database, and migrating the data.
 [Step to run the demo](#run-the-demo)
+<br>
 
-## Note
 
-- Name of artists and writers - store as one field as some names are unclear which one is first name or last name such as Shellback or Robert Ellis Orrall or St. Vincent
+<br>
 
-- One song can be only in one album; Taylor does not the same song across multiple albums.
-
-- Introduce a new column, Total Play - represent the numbers of song has been played. This field will be updated whenever a song is played.
+## API Documentations
+The api document is provided with Swagger. To access the api-docs, visit the link http://localhost:8001/api-docs.
 
 <br>
 
@@ -96,6 +144,8 @@ For demo purposes, a `docker-compose-demo.yml` file is provided. This file is us
   ```
 3. Docker
 4. Postgress database
+
+<br>
 
 ## Run the demo
 
@@ -144,26 +194,20 @@ $ bun prisma:dev:deploy
 ```bash
 $ bun start:prod
 ```
-
-## API Documentations
-The api document is provided with Swagger. To access the api-docs, visit the link http://localhost:8001/api-docs.
-
-
-## Data source
-1. export data as csv from https://docs.google.com/spreadsheets/d/1BFT5RlMKw1blz10bUrsVuWI6FGjzsT72KHE-jRiSXFk/edit?gid=619956793#gid=619956793
+<br>
 
 ## Project setup and scripts for development
 
-1. Environment setup
-Refer to .env.example
+1. #### Environment setup
+- Refer to .env.example
 
-2. Project setup
+2. #### Project setup
 
 ```bash
 $ bun install
 ```
 
-3. Compile and run the project
+3. #### Compile and run the project
 ```bash
 # development
 $ bun run start
@@ -178,15 +222,16 @@ $ bun run start:prod
 $ bun run start:demo
 ``` 
 
-4. Run tests
+4. #### Run tests
 
-  4.1 Unit test
+  - 4.1 Unit test
 
     ```bash
     # unit tests
     $ bun test:unit
 
-  4.2 E2E test.
+  - 4.2 E2E test.
+
     To simulate real-world conditions, end-to-end tests starts the service only once. 
 
     Coverage reports cannot be generated for end-to-end tests because the service runs as a web service. API calls are made during testing, preventing the coverage tool from detecting the executed code.
@@ -205,7 +250,7 @@ $ bun run start:demo
     $ bun test:e2e
     ```
 
-5. Start local postgres database in Docker
+5. #### Start local postgres database in Docker
 ```bash
 # First time initialization
 $ docker compose -f docker-compose-dev.yml up dev-db -d
@@ -227,7 +272,7 @@ $ docker compose -f docker-compose-dev.yml rm -f myservicename
 
 ```
 
-6. Prisma migration
+6. #### Prisma migration
 ```bash
 # list all options
 $ npx prisma
@@ -246,7 +291,7 @@ $ npx prisma migrate deploy
 $ prisma db push
 ```
 
-7. Dev scripts
+7. #### Dev scripts
 ```bash
 # Manually migrate schema and apply seeding data
 $ bun prisma:dev:deploy
@@ -257,7 +302,7 @@ $ bun db:dev:reset
 
 ```
 
-8. Create module, controller and provider
+8. #### Create module, controller and provider
 ```bash
 # Create module
 $ nest g module module_name

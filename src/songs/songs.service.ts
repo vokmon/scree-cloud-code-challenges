@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, Song } from '@prisma/client';
 import { DatasourceService } from '@src/datasource/datasource.service';
 import {
   SearchSongCriteriaDto,
@@ -8,23 +8,16 @@ import {
 import {
   getPaginationObject,
   getPaginationQueryObject,
+  getRecordIndex,
 } from '@src/utils/pagination-utils';
-import * as dto from '@src/dto/song.dto';
-import { GetSongByIdCriteriaDto } from './dto/get-songs-by-id.dto';
-import { GetRecommendationSongsCriteriaDto } from './dto/get-recommendation-songs.dto';
-import { getRandomNumbers } from '@src/utils/number-utils';
-import { GetTopSongsCriteriaDto, TopSongs } from './dto/get-top-songs.dto';
-import { SongMapperService } from '@src/mappers/song-mapper.dto';
 import { getOrderBy } from '@src/utils/sorting-utils';
+import * as dto from '@src/dto/song.dto';
 
 @Injectable()
 export class SongsService {
   private readonly logger = new Logger(SongsService.name);
 
-  constructor(
-    private datasourceService: DatasourceService,
-    private songMapperService: SongMapperService,
-  ) {}
+  constructor(private datasourceService: DatasourceService) {}
 
   /**
    * Field mapping for sorting string to actual fields
@@ -112,140 +105,11 @@ export class SongsService {
       }),
     ]);
 
-    const songsDto = this.songMapperService.transformSongDbToDto(
-      songs,
-      pagination.skip,
-    );
+    const songsDto = this.transformSongDbToDto(songs, pagination.skip);
     return {
       data: songsDto,
       pagination: getPaginationObject({ data: songsDto, total, page, limit }),
     };
-  }
-
-  /**
-   * Get song by song id
-   * @param id song id
-   * @param criteria {@link GetSongByIdCriteriaDto}
-   * @returns The song that matched the id
-   */
-  async getSongById(
-    id: number,
-    criteria: GetSongByIdCriteriaDto,
-  ): Promise<dto.Song | null> {
-    const selectFields = this.getSongSelection(criteria);
-    const song = await this.datasourceService.song.findUnique({
-      select: {
-        id: true,
-        ...selectFields,
-      },
-      where: { id },
-    });
-    if (!song) {
-      return null;
-    }
-    const dto = this.songMapperService.transformSongDbToDto([song], 0);
-    return dto[0];
-  }
-
-  /**
-   * This is a simplified example of a song recommendation system. In a real-world application, song recommendations would take many factors into account, such as:
-   * - User preferences (e.g., genre, artists, etc.)
-   * - Playlist history (songs previously added to playlists or liked by the user)
-   * - Song release dates (new releases or songs that match the user's listening pattern)
-   * - Current trends (popular songs, trending genres, etc.)
-   *
-   * For the purpose of this example, the method simply fetches a set of random songs from the database as a placeholder for a more sophisticated recommendation engine.
-   *
-   * @param query {@link GetRecommendationCriteriaDto}
-   */
-  async getRecommendationSongs(
-    query: GetRecommendationSongsCriteriaDto,
-  ): Promise<dto.Song[]> {
-    const selectFields = this.getSongSelection(query);
-    const orderBy = getOrderBy<
-      SearchSongCriteriaDto,
-      Prisma.SongOrderByWithRelationInput
-    >(query, this.FIELD_MAPPING);
-    const { limit } = query;
-
-    const totalCount = await this.datasourceService.song.count();
-    const ids = getRandomNumbers(limit, totalCount);
-    const songs = await this.datasourceService.song.findMany({
-      select: selectFields,
-      where: {
-        id: {
-          in: ids,
-        },
-      },
-      orderBy,
-      take: limit,
-    });
-
-    const songsDto = this.songMapperService.transformSongDbToDto(songs, 0);
-    return songsDto;
-  }
-
-  async getTopSongsByMonths(
-    criteria: GetTopSongsCriteriaDto,
-  ): Promise<TopSongs[]> {
-    const { monthYears, limit } = criteria;
-    const results = [];
-
-    for (const { month, year } of monthYears) {
-      const topSongs = await this.datasourceService.play.findMany({
-        select: {
-          playCount: true,
-          song: {
-            select: {
-              id: true,
-              title: true,
-              totalPlays: true,
-              year: true,
-              album: {
-                select: {
-                  id: true,
-                  title: true,
-                },
-              },
-              writers: {
-                select: {
-                  writer: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                },
-              },
-              artists: {
-                select: {
-                  artist: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        where: {
-          month,
-          year,
-        },
-        orderBy: {
-          playCount: 'desc',
-        },
-        take: limit,
-      });
-
-      results.push({
-        month,
-        year,
-        topSongs,
-      });
-    }
-
-    return results;
   }
 
   /**
@@ -302,5 +166,22 @@ export class SongsService {
           },
         }
       : {};
+  }
+
+  /**
+   * Convert song database entity to song dto
+   * @param songs list of {@link Song} to convert
+   * @param offset for setting index in the element
+   * @returns list of {@link dto.Song}
+   */
+  transformSongDbToDto(songs: Song[], offset: number): dto.Song[] {
+    const songsDto = songs.map((song, index) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      return {
+        index: getRecordIndex({ index, skip: offset }),
+        ...song,
+      } as unknown as dto.Song;
+    });
+    return songsDto;
   }
 }
