@@ -57,6 +57,13 @@ The API can include play data statistics by adding the `includePlayData=true` qu
   **Example**:  
   `GET /songs?keyword=love&includePlayData=true`
 
+### Each parameter showcases a specific capability of the API:
+- year: To demonstrate the ability to filter results by a single field in the database.
+- keyword: To demonstrate the api can perform searches across multiple columns in different tables.
+- includePlayData: To demonstrate that the api can provide data with different shape
+- page and limit: To demonstrate that the api can handle large datasets by splitting results into smaller and managable size.
+- orderBy and orderDirection: To demonstrate the ability to sort results based on specified fields
+
 <br>
 
 ## Design
